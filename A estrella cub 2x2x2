@@ -1,0 +1,230 @@
+import numpy as np
+import copy
+import time
+import operator
+import random
+import itertools
+import pandas as pd
+import csv
+
+def TransformState(Cube):
+    State=list(range(21))
+    for i,j,z in zip ([0,1,2,17,18,20,4],[14,6,10,5,9,13,19],[11,3,7,8,12,15,16]):
+        
+        if Cube[i]=='W':
+            if Cube[j]=='R': State[i]=2; State[j]=10; State[z]=7
+            elif Cube[j]=='B': State[i]=0; State[j]=14; State[z]=11
+            else: State[i]=1; State[j]=6; State[z]=3    
+        elif  Cube[i]=='G':
+            if Cube[j]=='W': State[i]=7; State[j]=2; State[z]=10
+            elif Cube[j]=='O': State[i]=6; State[j]=3; State[z]=1
+            elif Cube[j]=='R': State[i]=9; State[j]=12; State[z]=18
+            else: State[i]=8; State[j]=17; State[z]=5   
+        elif Cube[i]=='O':
+            if Cube[j]=='W': State[i]=3; State[j]=1; State[z]=6
+            elif Cube[j]=='G': State[i]=5; State[j]=8; State[z]=17
+            else: State[i]=4; State[j]=19; State[z]=16
+        elif Cube[i]=='B':
+            if Cube[j]=='R': State[i]=14; State[j]=11; State[z]=0
+            elif Cube[j]=='Y': State[i]=15; State[j]=20; State[z]=13
+            else: State[i]=16; State[j]=4; State[z]=19            
+        elif Cube[i]=='R':
+            if Cube[j]=='W': State[i]=11; State[j]=0; State[z]=14
+            elif Cube[j]=='G': State[i]=10; State[j]=7; State[z]=2
+            elif Cube[j]=='B': State[i]=13; State[j]=15; State[z]=20
+            else: State[i]=12; State[j]=18; State[z]=9  
+        else:
+            if Cube[j]=='G': State[i]=18; State[j]=9; State[z]=12
+            elif Cube[j]=='R': State[i]=20; State[j]=13; State[z]=15
+            elif Cube[j]=='O': State[i]=17; State[j]=5; State[z]=8
+            else: State[i]=19; State[j]=16; State[z]=4
+                
+    return(State)
+    
+PRH = [7,1,9,3,4,5,6,18,8,20,12,10,13,11,2,0,16,17,15,19,14]
+PRA = [15,1,14,3,4,5,6,0,8,2,11,13,10,12,20,18,16,17,7,19,9]
+PFH = [0,5,3,17,4,18,8,6,9,7,1,11,2,13,14,15,16,12,10,19,20]
+PFA = [0,10,12,2,4,1,7,9,6,8,18,11,17,13,14,15,16,3,5,19,20]
+PDH = [0,1,2,3,15,16,6,7,4,5,10,11,8,9,14,12,13,19,17,20,18]
+PDA = [0,1,2,3,8,9,6,7,12,13,10,11,15,16,14,4,5,18,20,17,19]
+
+def RH (Estat,PRH): return [Estat[i] for i in PRH]
+def RA (Estat,PRA): return [Estat[i] for i in PRA] 
+def FH (Estat,PFH): return [Estat[i] for i in PFH]
+def FA (Estat,PFA): return [Estat[i] for i in PFA]
+def DH (Estat,PDH): return [Estat[i] for i in PDH]
+def DA (Estat,PDA): return [Estat[i] for i in PDA] 
+    
+    
+def Expand(Cami):
+    Girs = [RA,RH,FA,FH,DA,DH]
+    Pers = [PRA,PRH,PFA,PFH,PDA,PDH]
+    Movs = ["RA","RH","FA","FH","DA","DH"]
+    veins=[(x(Cami,y),z) for x,y,z in zip(Girs,Pers,Movs)]
+    
+    return veins    
+    
+def Heuristic0(Node):
+    h=0
+    return h    
+
+EstatFet=list(range(21))
+dis1=ExpandNodes(EstatFet)
+NodesDis2=[]
+NodesDis3=[]
+NodesDis4=[]
+NodesDis5=[]
+NodesDis6=[]
+NodesDis7=[]
+NodesDis8=[]
+
+#Nodes dis2:
+for i in dis1:
+    NodesDis2+=ExpandNodes(i)
+dis2=[x for x in NodesDis2 if x!=EstatFet]
+dis2.sort()
+dis2 = list(dis2 for dis2,_ in itertools.groupby(dis2))
+
+#Nodes dis3:
+for i in dis2:
+    NodesDis3=NodesDis3+ExpandNodes(i)
+dis3=[x for x in NodesDis3 if x not in dis1]
+dis3.sort()
+dis3 = list(dis3 for dis3,_ in itertools.groupby(dis3))
+
+#Nodes dis4:
+for i in dis3:
+    NodesDis4=NodesDis4+ExpandNodes(i)
+dis4=[x for x in NodesDis4 if x not in dis2]
+dis4.sort()
+dis4 = list(dis4 for dis4,_ in itertools.groupby(dis4))
+
+#Nodes dis5:
+for i in dis4:
+    NodesDis5=NodesDis5+ExpandNodes(i)
+dis5=[x for x in NodesDis5 if x not in dis3]
+dis5.sort()
+dis5 = list(dis5 for dis5,_ in itertools.groupby(dis5))
+
+#Nodes dis6:
+for i in dis5:
+    NodesDis6=NodesDis6+ExpandNodes(i)
+dis6=[x for x in NodesDis6 if x not in dis4]
+dis6.sort()
+dis6 = list(dis6 for dis6,_ in itertools.groupby(dis6))
+
+#Nodes dis7:
+for i in dis6:
+    NodesDis7=NodesDis7+ExpandNodes(i)
+dis7=[x for x in NodesDis7 if x not in dis5]
+dis7.sort()
+dis7 = list(dis7 for dis7,_ in itertools.groupby(dis7))
+
+#Nodes dis8:
+for i in dis7:
+    NodesDis8=NodesDis8+ExpandNodes(i)
+dis8=[x for x in NodesDis8 if x not in dis6]
+dis8.sort()
+dis8 = list(dis8 for dis8,_ in itertools.groupby(dis8))    
+    
+def ExpandNodes(Cami):
+    Girs = [RA,RH,FA,FH,DA,DH]
+    Pers = [PRA,PRH,PFA,PFH,PDA,PDH]
+    veins=[ g(Cami,p) for g,p in zip(Girs,Pers)]
+
+    return veins    
+    
+def HeuristicDis(Node,dis1,dis2,dis3,dis4,dis5,dis6,dis7,EstatFet):
+    if Node==EstatFet: return 0
+    elif Node in dis1: return 1
+    elif Node in dis2: return 2
+    elif Node in dis3: return 3
+    elif Node in dis4: return 4
+    elif Node in dis5: return 5
+    elif Node in dis6: return 6
+    elif Node in dis7: return 7
+    else: return 15    
+    
+def AStar(EstatIni):
+    
+    ti = time.time() 
+    EstatFinal=list(range(21))
+    Oberts=[]
+    Tancats=[]
+    Veins=[]
+    g=0
+    Tancats.append({"Node":EstatIni,"g":g,"Mov":""})
+    
+    while EstatFinal!=Tancats[0]["Node"]:
+        
+        NodeActual=Tancats[0]["Node"]
+        E = Expand(NodeActual)
+            
+        T=[x["Node"] for x in Tancats]
+        O=[x["Node"] for x in Oberts]
+        gAct=Tancats[0]["g"]   
+        for v in E:
+            g=gAct+1
+            #h=Heuristic0(v)
+            h=HeuristicDis(v[0],dis1,dis2,dis3,dis4,dis5,dis6,dis7,EstatFet)
+            f=h+g
+            
+            if v[0] in T:
+                indt = [i for i,_ in enumerate(Tancats) if _["Node"] == v[0]][0]
+                if g < Tancats[indt]["g"]:
+                    Oberts.append({"Node":v[0],"g":g,"f":f,"p":NodeActual,"Mov":v[1]})
+                    Tancats.pop(indt)
+                    
+            elif v[0] not in O:
+                Oberts.append({"Node":v[0],"g":g,"f":f,"p":NodeActual,"Mov":v[1]})
+
+            #Si està en els oberts, actualitzar el node en cas que g sigui menor:
+            else:
+                indo = [i for i,_ in enumerate(Oberts) if _["Node"] == v[0]][0]
+                if g < Oberts[indo]["g"]:
+                    Oberts[indo]["g"]=g 
+                    Oberts[indo]["f"]=f 
+                    Oberts[indo]["p"]=NodeActual
+                    Oberts[indo]["Mov"]=v[1]
+        #Agafa el node d'oberts amb menor f i el mou dels oberts als visitats.
+        MinimF = min(Oberts, key=lambda x:x['f'])
+        Tancats.insert(0,MinimF)
+        Oberts.remove(MinimF)
+
+    Ruta=[]
+    Node=Tancats[0]
+    Ruta.append(Node["Mov"])
+    while Node["Node"]!=EstatIni:
+        
+        ind = [i for i,_ in enumerate(Tancats) if _["Node"] == Node["p"]][0]
+        Ruta.append(Tancats[ind]["Mov"])
+        Node=Tancats[ind]
+        
+        
+    Ruta.pop()
+    Ruta=list(reversed(Ruta))
+    tf = time.time()
+    print("Temps d'execució:",tf-ti, "segons")
+    return Ruta    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
