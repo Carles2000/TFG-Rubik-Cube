@@ -166,7 +166,9 @@ def AStar(EstatIni):
         for v in E:
             g=gAct+1
             #h=Heuristic0(v)
-            h=HeuristicDis(v[0],dis1,dis2,dis3,dis4,dis5,dis6,dis7,EstatFet)
+            #h=HeuristicDis(v[0],dis1,dis2,dis3,dis4,dis5,dis6,dis7,EstatFet)
+            pred=model.predict(np.array([tf.keras.utils.to_categorical(v[0], num_classes=48)]))
+            h=pred[0][0]
             f=h+g
             
             if v[0] in T:
