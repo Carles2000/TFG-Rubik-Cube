@@ -76,7 +76,6 @@ NodesDis4=[]
 NodesDis5=[]
 NodesDis6=[]
 NodesDis7=[]
-NodesDis8=[]
 
 #Nodes dis2:
 for i in dis1:
@@ -118,14 +117,7 @@ for i in dis6:
     NodesDis7=NodesDis7+ExpandNodes(i)
 dis7=[x for x in NodesDis7 if x not in dis5]
 dis7.sort()
-dis7 = list(dis7 for dis7,_ in itertools.groupby(dis7))
-
-#Nodes dis8:
-for i in dis7:
-    NodesDis8=NodesDis8+ExpandNodes(i)
-dis8=[x for x in NodesDis8 if x not in dis6]
-dis8.sort()
-dis8 = list(dis8 for dis8,_ in itertools.groupby(dis8))    
+dis7 = list(dis7 for dis7,_ in itertools.groupby(dis7))   
     
 def ExpandNodes(Cami):
     Girs = [RA,RH,FA,FH,DA,DH]
